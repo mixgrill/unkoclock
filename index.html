@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html><head>
+	<meta charset="utf-8"/>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.1/knockout-latest.min.js">
+		</script>
+		<style>
+			.circlenizer{
+				overflow: hidden;
+				border-radius:50%;
+				background-color: rgb(22, 19, 19);
+				color:whitesmoke;
+				position:relative;
+			}
+			.circlenizer--pendulum-left{
+				left:0;
+			}
+			.circlenizer--pendulum-right{
+				left:392px;
+			}
+			.circlenizer__edit-area{
+				width:200%;
+				height:200%;
+				position: relative;
+				top:-50%;
+				left:-50%;
+			}
+			.circlenizer__edit-area__transform{
+				transform: rotate(0deg);
+				top:14.64%;
+				left:14.64%;
+				width:70.71%;
+				height:70.71%;
+				display:table;
+				overflow: hidden;
+				position:relative;
+				transform-origin: center;
+				font-size:0;
+			}
+			.circlenizer__edit-area__transform--pendulum-left{
+				transform:rotate(-45deg);
+			}
+			.circlenizer__edit-area__transform--pendulum-right{
+				transform:rotate(405deg);
+			}
+
+			.circlenizer__edit-area__transform--pointer{
+				transform:rotate(90deg);
+			}
+			.circlenizer__edit-area__transform__target{
+				display:table-cell;
+				vertical-align: middle;
+				text-align:center;
+			}
+			.hand{
+				position: absolute;
+				top:50%;
+				left:50%;
+				transform-origin: left;
+			}
+			.hand--second{
+				transform:rotate(10deg);
+				z-index:300;
+			}
+			.hand--munite{
+				transform:rotate(50deg);
+				z-index:200;
+			}
+			.hand--hour{
+				transform:rotate(30deg);
+				z-index:100;
+			}
+			.hand__rod{
+				position: relative;
+			}
+			.hand__rod--second{
+				top:0px;
+				left:-10%;
+				width:97%;
+				color:brown;
+				height:1px;
+				background-color: brown;
+			}
+			.hand__rod--munite{
+				top:0px;
+				left:-12%;
+				width:95%;
+				color:blue;
+				background-color:blue;
+				height:4px;
+			}
+			.hand__rod--hour{
+				top:0px;
+				left:-15%;
+				width:75.5%;
+				color:red;
+				border:2px white solid;
+				background-color:red;
+				height:6px;
+			}
+			.hand__pointer{
+				position:absolute;
+			}
+			.hand__pointer--second{
+				top:-10px;
+				width:20px;
+				height:20px;
+				left:56%;
+				background-color:brown;
+			}
+			.hand__pointer--munite{
+				top:-4px;
+				width:15px;
+				height:15px;
+				left:75%;
+				background-color:blue;
+			}
+			.hand__pointer--hour{
+				top:-9px;
+				width:30px;
+				height:30px;
+				left:50%;
+				border:1px white solid;
+				background-color:red;
+			}
+			.axis{
+				position:absolute;
+				top:calc(50% - 12px);
+				left:calc(50% - 12px);
+				width:21px;
+				height:21px;
+				border:2px white solid;
+				color:red;
+				background-color:#333;
+				z-index:400;
+				border-radius:50%;
+				font-size: 0;
+			}
+			.axis2{
+				position:absolute;
+				top:50%;
+				left:50%;
+				width:1px;
+				height:1px;
+				background-color:red;
+				z-index:500;
+			}
+			.indicator{
+				position:absolute;
+				top:250px;;
+				left:0;
+				width:340px;
+				height:1px;
+				border-left:80px black solid;
+				border-right:80px black solid;			
+			}
+			.frame{
+				position:absolute;
+				top:-50px;
+				left:-50px;
+				width:500px;
+				height:500px;
+				border-radius:50%;
+				border:50px rgb(34, 2, 9) solid;
+				box-shadow:5px 5px rgba(0,0,0,0.2);
+			}
+			.debug{
+				display:none;
+			}
+		</style>
+    </head>
+    <body style="padding:100px;">
+		<div id="root" style="position:relative;height:500px;width:500px;margin:0 auto;">
+			<!--バックパネル-->
+			<div class="circlenizer" style="height:inherit;width:inherit;background-color:#ece;opacity: .25;">
+				<div class="circlenizer__edit-area" style="z-index:50;">
+					<div class="circlenizer__edit-area__transform">
+						<div class="circlenizer__edit-area__transform__target" style="font-size:256px">
+							<span style="font-size:300px;">💩</span>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- 秒針-->
+			<div class="hand hand--second" style="width:270px;"
+				data-bind="style:{ transform: 'rotate('+secondsDeg()+'deg)'}">
+				<div class="hand__rod hand__rod--second"></div>
+				<div class="hand__pointer hand__pointer--second circlenizer">
+					<div class="circlenizer__edit-area">
+						<div class="circlenizer__edit-area__transform circlenizer__edit-area__transform--pointer">
+							<div class="circlenizer__edit-area__transform__target">
+								<span style="font-size:12px;">💩</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 分針 -->
+			<div class="hand hand--munite" style="width:270px;"
+			data-bind="style:{ transform: 'rotate('+minutesDeg()+'deg)'}">
+				<div class="hand__rod hand__rod--munite"></div>
+				<div class="hand__pointer hand__pointer--munite circlenizer">
+					<div class="circlenizer__edit-area">
+						<div class="circlenizer__edit-area__transform circlenizer__edit-area__transform--pointer">
+							<div class="circlenizer__edit-area__transform__target">
+								<span style="font-size:8px;">💩</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 時針 -->
+			<div class="hand hand--hour" style="width:270px;" data-bind="style:{ transform: 'rotate('+hoursDeg()+'deg)'}">
+				<div class="hand__rod hand__rod--hour"></div>
+				<div class="hand__pointer hand__pointer--hour circlenizer">
+					<div class="circlenizer__edit-area">
+						<div class="circlenizer__edit-area__transform circlenizer__edit-area__transform--pointer">
+							<div class="circlenizer__edit-area__transform__target">
+								<span style="font-size:18px;">💩</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="axis"></div>
+			<div class="axis2"></div>
+			<div class="indicator" style="transform:rotate(0deg);"></div>
+			<div class="indicator" style="transform:rotate(30deg);border-left:40px black solid;border-right:40px black solid;width:420px;"></div>
+			<div class="indicator" style="transform:rotate(60deg);border-left:40px black solid;border-right:40px black solid;width:420px;"></div>
+			<div class="indicator" style="transform:rotate(90deg);"></div>
+			<div class="indicator" style="transform:rotate(120deg);border-left:40px black solid;border-right:40px black solid;width:420px;"></div>
+			<div class="indicator" style="transform:rotate(150deg);border-left:40px black solid;border-right:40px black solid;width:420px;"></div>
+			<div class="frame"></div>
+			<div style="margin-top:60px;">
+				<div class="circlenizer" style="height:100px;width:100px;background-color:pink;transition:all 0.9s;" data-bind="css: { 'circlenizer--pendulum-left': pendulumPos()=='left','circlenizer--pendulum-right': pendulumPos()=='right' }">
+					<div class="circlenizer__edit-area" style="z-index:50;">
+						<div class="circlenizer__edit-area__transform" style="transition:all 0.9s"
+							 data-bind="css: { 'circlenizer__edit-area__transform--pendulum-left': pendulumPos()=='left','circlenizer__edit-area__transform--pendulum-right': pendulumPos()=='right' }">
+							<div class="circlenizer__edit-area__transform__target" style="font-size:256	px">
+								<span style="font-size:40px;">💩</span>
+							</div>
+						</div>
+					</div>
+				</div>
+				<dim class="debug">
+					ampm=<span data-bind="text: amPm"></span>
+					<br/>
+					hours=<span data-bind="text: hours"></span>
+					<br/>
+					minutes=<span data-bind="text: minutes"></span>
+					<br/>
+					seconds=<span data-bind="text: seconds"></span>
+					<br/>
+					time=<span data-bind="text: time"></span>
+					<br/>
+				</dim>
+			</div>
+		</div>
+		<script>
+			var ns=ns||{};
+			ns.ViewModel=function(){
+				this.time = ko.observable(Date.now());
+				this.amPm = ko.computed(function(){
+					let tmp = (new Date(this.time())).getHours();
+					if (tmp>=12){
+						return "pm";
+					}else{
+						return "am";
+					}
+				},this);
+				this.hours =  ko.computed(function(){
+					let tmp = (new Date(this.time())).getHours();
+					if (tmp>=12){
+						tmp -=12;
+					}
+					return tmp;
+				},this);
+				this.minutes = ko.computed(function(){
+					return (new Date(this.time())).getMinutes();
+				},this);
+				this.seconds = ko.computed(function(){
+					return (new Date(this.time())).getSeconds();
+				},this);
+				this.hoursDeg = ko.computed(function(){
+					return this.hours() * 30 + this.minutes() * (30/60) - 90;
+				},this);
+				this.minutesDeg = ko.computed(function(){
+					return this.minutes() * 6 + this.seconds() * (6/60) - 90 ;
+				},this);
+				this.secondsDeg = ko.computed(function(){	
+					return this.seconds() * 6 - 90;
+				},this);
+				this.pendulumPos = ko.computed(function(){	
+					return (this.seconds() % 2)?"left":"right";
+				},this)
+			}
+			ns.viewModel = new ns.ViewModel();
+			ko.applyBindings(ns.viewModel, document.getElementById('root'));
+			ns.timerId = setInterval(
+				function(){
+					ns.viewModel.time(Date.now());
+				},1000
+			);
+			window.onclose=function(){
+				clearInterval(ns.timerId);
+				ko.cleanNode(document.getElementById('root'))
+				ns.viewModel = null;
+			}
+		</script>
+    </body>
+</html>
