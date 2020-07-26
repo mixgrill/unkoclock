@@ -1,2 +1,2 @@
 # unkoclock
-An analog-like clock implementation by HTML/CSS/Javascript. Inspired by 💩
+An analog-like clock implementation with HTML/CSS/Javascript. Inspired by 💩
